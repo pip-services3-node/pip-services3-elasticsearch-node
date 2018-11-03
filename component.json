@@ -1,0 +1,6 @@
+{
+    "name": "pip-services-elasticsearch",
+    "registry": "pipdevs",
+    "version": "3.0.2",
+    "build": "0"
+}
