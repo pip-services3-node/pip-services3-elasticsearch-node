@@ -6,7 +6,7 @@ It contains the ElasticSearch logger.
 Quick Links:
 
 * [Downloads](https://github.com/pip-services-node/pip-services-elasticsearch-node/blob/master/doc/Downloads.md)
-* [API Reference](https://rawgit.com/pip-services-node/pip-services-elasticsearch-node/master/doc/api/globals.html)
+* [API Reference]()
 * [Building and Testing](https://github.com/pip-services-node/pip-services-elasticsearch-node/blob/master/doc/Development.md)
 * [Contributing](https://github.com/pip-services-node/pip-services-elasticsearch-node/blob/master/doc/Development.md/#contrib)
 
