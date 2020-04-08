@@ -1,6 +1,6 @@
 # ElasticSearch components for Pip.Services in Node.js Changelog
 
-## <a name="3.0.2"></a> 3.0.2 (2020-04-08) 
+## <a name="3.0.3"></a> 3.0.3 (2020-04-08) 
 
 ### Features
 * Implemented a configurable date format for the elasticsearch index pattern.
