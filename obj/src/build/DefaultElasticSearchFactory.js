@@ -18,7 +18,7 @@ class DefaultElasticSearchFactory extends pip_services3_components_node_1.Factor
         this.registerAsType(DefaultElasticSearchFactory.ElasticSearchLoggerDescriptor, ElasticSearchLogger_1.ElasticSearchLogger);
     }
 }
+exports.DefaultElasticSearchFactory = DefaultElasticSearchFactory;
 DefaultElasticSearchFactory.Descriptor = new pip_services3_commons_node_1.Descriptor("pip-services", "factory", "elasticsearch", "default", "1.0");
 DefaultElasticSearchFactory.ElasticSearchLoggerDescriptor = new pip_services3_commons_node_1.Descriptor("pip-services", "logger", "elasticsearch", "*", "1.0");
-exports.DefaultElasticSearchFactory = DefaultElasticSearchFactory;
 //# sourceMappingURL=DefaultElasticSearchFactory.js.map

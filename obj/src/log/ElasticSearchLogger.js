@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /** @module log */
 /** @hidden */
 let async = require('async');
+const moment = require("moment");
 const pip_services3_commons_node_1 = require("pip-services3-commons-node");
 const pip_services3_rpc_node_1 = require("pip-services3-rpc-node");
 const pip_services3_commons_node_2 = require("pip-services3-commons-node");
@@ -30,6 +31,7 @@ const pip_services3_components_node_1 = require("pip-services3-components-node")
  *     - interval:        interval in milliseconds to save log messages (default: 10 seconds)
  *     - max_cache_size:  maximum number of messages stored in this cache (default: 100)
  *     - index:           ElasticSearch index name (default: "log")
+ *     - date_format      The date format to use when creating the index name. Eg. log-YYYYMMDD (default: "YYYYMMDD"). See [[https://momentjs.com/docs/#/displaying/format/]]
  *     - daily:           true to create a new index every day by adding date suffix to the index
  *                        name (default: false)
  *     - reconnect:       reconnect timeout in milliseconds (default: 60 sec)
@@ -66,6 +68,7 @@ class ElasticSearchLogger extends pip_services3_components_node_1.CachedLogger {
         super();
         this._connectionResolver = new pip_services3_rpc_node_1.HttpConnectionResolver();
         this._index = "log";
+        this._dateFormat = "YYYYMMDD";
         this._dailyIndex = false;
         this._reconnect = 60000;
         this._timeout = 30000;
@@ -82,6 +85,7 @@ class ElasticSearchLogger extends pip_services3_components_node_1.CachedLogger {
         super.configure(config);
         this._connectionResolver.configure(config);
         this._index = config.getAsStringWithDefault('index', this._index);
+        this._dateFormat = config.getAsStringWithDefault("date_format", this._dateFormat);
         this._dailyIndex = config.getAsBooleanWithDefault('daily', this._dailyIndex);
         this._reconnect = config.getAsIntegerWithDefault('options.reconnect', this._reconnect);
         this._timeout = config.getAsIntegerWithDefault('options.timeout', this._timeout);
@@ -160,13 +164,9 @@ class ElasticSearchLogger extends pip_services3_components_node_1.CachedLogger {
     getCurrentIndex() {
         if (!this._dailyIndex)
             return this._index;
-        let now = new Date();
-        let year = now.getUTCFullYear().toString();
-        let month = (now.getUTCMonth() + 1).toString();
-        month = month.length < 2 ? "0" + month : month;
-        let day = now.getUTCDate().toString();
-        day = day.length < 2 ? "0" + day : day;
-        return this._index + "-" + year + month + day;
+        let today = new Date().toUTCString();
+        let datePattern = moment(today).format(this._dateFormat);
+        return this._index + "-" + datePattern;
     }
     createIndexIfNeeded(correlationId, force, callback) {
         let newIndex = this.getCurrentIndex();

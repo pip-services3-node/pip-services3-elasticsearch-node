@@ -27,6 +27,7 @@ import { LogMessage } from 'pip-services3-components-node';
  *     - interval:        interval in milliseconds to save log messages (default: 10 seconds)
  *     - max_cache_size:  maximum number of messages stored in this cache (default: 100)
  *     - index:           ElasticSearch index name (default: "log")
+ *     - date_format      The date format to use when creating the index name. Eg. log-YYYYMMDD (default: "YYYYMMDD"). See [[https://momentjs.com/docs/#/displaying/format/]]
  *     - daily:           true to create a new index every day by adding date suffix to the index
  *                        name (default: false)
  *     - reconnect:       reconnect timeout in milliseconds (default: 60 sec)
@@ -59,6 +60,7 @@ export declare class ElasticSearchLogger extends CachedLogger implements IRefere
     private _connectionResolver;
     private _timer;
     private _index;
+    private _dateFormat;
     private _dailyIndex;
     private _currentIndex;
     private _reconnect;
