@@ -36,9 +36,10 @@
     },
     "dependencies": {
         "elasticsearch": "^14.2.1",
+        "moment": "^2.24.0",
         "pip-services3-commons-node": "^3.0.0",
         "pip-services3-components-node": "^3.0.0",
-        "pip-services3-rpc-node": "^3.0.0"
+        "pip-services3-rpc-node": "^3.2.1"
     },
     "devDependencies": {
         "@types/async": "^2.0.0",

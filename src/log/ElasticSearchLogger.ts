@@ -2,6 +2,8 @@
 /** @hidden */
 let async = require('async');
 
+import * as moment from 'moment';
+
 import { ConfigParams } from 'pip-services3-commons-node';
 import { IReferences } from 'pip-services3-commons-node';
 import { IReferenceable } from 'pip-services3-commons-node';
@@ -25,7 +27,7 @@ import { LogMessage } from 'pip-services3-components-node';
  * 
  * - level:             maximum log level to capture
  * - source:            source (context) name
- * - connection(s):           
+ * - connection(s):
  *     - discovery_key:         (optional) a key to retrieve the connection from [[https://rawgit.com/pip-services-node/pip-services3-components-node/master/doc/api/interfaces/connect.idiscovery.html IDiscovery]]
  *     - protocol:              connection protocol: http or https
  *     - host:                  host name or IP address
@@ -33,9 +35,10 @@ import { LogMessage } from 'pip-services3-components-node';
  *     - uri:                   resource URI or connection string with all parameters in it
  * - options:
  *     - interval:        interval in milliseconds to save log messages (default: 10 seconds)
- *     - max_cache_size:  maximum number of messages stored in this cache (default: 100)        
+ *     - max_cache_size:  maximum number of messages stored in this cache (default: 100)
  *     - index:           ElasticSearch index name (default: "log")
- *     - daily:           true to create a new index every day by adding date suffix to the index 
+ *     - date_format      The date format to use when creating the index name. Eg. log-YYYYMMDD (default: "YYYYMMDD"). See [[https://momentjs.com/docs/#/displaying/format/]]
+ *     - daily:           true to create a new index every day by adding date suffix to the index
  *                        name (default: false)
  *     - reconnect:       reconnect timeout in milliseconds (default: 60 sec)
  *     - timeout:         invocation timeout in milliseconds (default: 30 sec)
@@ -65,14 +68,15 @@ import { LogMessage } from 'pip-services3-components-node';
  */
 export class ElasticSearchLogger extends CachedLogger implements IReferenceable, IOpenable {
     private _connectionResolver: HttpConnectionResolver = new HttpConnectionResolver();
-    
+
     private _timer: any;
     private _index: string = "log";
+    private _dateFormat: string = "YYYYMMDD";
     private _dailyIndex: boolean = false;
     private _currentIndex: string;
     private _reconnect: number = 60000;
     private _timeout: number = 30000;
-    private _maxRetries: number = 3;    
+    private _maxRetries: number = 3;
     private _indexMessage: boolean = false;
 
     private _client: any = null;
@@ -95,6 +99,7 @@ export class ElasticSearchLogger extends CachedLogger implements IReferenceable,
         this._connectionResolver.configure(config);
 
         this._index = config.getAsStringWithDefault('index', this._index);
+        this._dateFormat = config.getAsStringWithDefault ("date_format", this._dateFormat);
         this._dailyIndex = config.getAsBooleanWithDefault('daily', this._dailyIndex);
         this._reconnect = config.getAsIntegerWithDefault('options.reconnect', this._reconnect);
         this._timeout = config.getAsIntegerWithDefault('options.timeout', this._timeout);
@@ -138,9 +143,9 @@ export class ElasticSearchLogger extends CachedLogger implements IReferenceable,
                 err = new ConfigException(correlationId, 'NO_CONNECTION', 'Connection is not configured');
 
             if (err != null) {
-                 callback(err);
-                 return;
-            } 
+                callback(err);
+                return;
+            }
 
             let uri = connection.getUri();
 
@@ -186,13 +191,10 @@ export class ElasticSearchLogger extends CachedLogger implements IReferenceable,
     private getCurrentIndex(): string {
         if (!this._dailyIndex) return this._index;
 
-        let now = new Date();
-        let year = now.getUTCFullYear().toString();
-        let month = (now.getUTCMonth() + 1).toString();
-        month = month.length < 2 ? "0" + month : month;
-        let day = now.getUTCDate().toString();
-        day = day.length < 2 ? "0" + day : day;
-        return this._index + "-" + year + month + day;
+        let today = new Date().toUTCString();
+        let datePattern = moment(today).format(this._dateFormat);
+
+        return this._index + "-" + datePattern;
     }
 
     private createIndexIfNeeded(correlationId: string, force: boolean, callback: (err: any) => void): void {
@@ -242,7 +244,7 @@ export class ElasticSearchLogger extends CachedLogger implements IReferenceable,
                                         message: { type: "text", index: this._indexMessage }
                                     }
                                 }
-                            }            
+                            }
                         }
                     },
                     (err) => {
@@ -264,7 +266,7 @@ export class ElasticSearchLogger extends CachedLogger implements IReferenceable,
      * @param callback  callback function that receives error or null for success.
      */
     protected save(messages: LogMessage[], callback: (err: any) => void): void {
-        if (!this.isOpen()  && messages.length == 0) {
+        if (!this.isOpen() && messages.length == 0) {
             if (callback) callback(null);
             return;
         }
