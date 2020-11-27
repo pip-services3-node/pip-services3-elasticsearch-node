@@ -28,7 +28,7 @@ import { LogMessage } from 'pip-services3-components-node';
  * - level:             maximum log level to capture
  * - source:            source (context) name
  * - connection(s):
- *     - discovery_key:         (optional) a key to retrieve the connection from [[https://rawgit.com/pip-services-node/pip-services3-components-node/master/doc/api/interfaces/connect.idiscovery.html IDiscovery]]
+ *     - discovery_key:         (optional) a key to retrieve the connection from [[https://pip-services3-node.github.io/pip-services3-components-node/interfaces/connect.idiscovery.html IDiscovery]]
  *     - protocol:              connection protocol: http or https
  *     - host:                  host name or IP address
  *     - port:                  port number
@@ -37,9 +37,8 @@ import { LogMessage } from 'pip-services3-components-node';
  *     - interval:        interval in milliseconds to save log messages (default: 10 seconds)
  *     - max_cache_size:  maximum number of messages stored in this cache (default: 100)
  *     - index:           ElasticSearch index name (default: "log")
- *     - date_format      The date format to use when creating the index name. Eg. log-YYYYMMDD (default: "YYYYMMDD"). See [[https://momentjs.com/docs/#/displaying/format/]]
- *     - daily:           true to create a new index every day by adding date suffix to the index
- *                        name (default: false)
+ *     - date_format      The date format to use when creating the index name. Eg. log-YYYYMMDD (default: "YYYYMMDD"). See [[https://momentjs.com/docs/#/displaying/format/ Moment.js]]
+ *     - daily:           true to create a new index every day by adding date suffix to the index name (default: false)
  *     - reconnect:       reconnect timeout in milliseconds (default: 60 sec)
  *     - timeout:         invocation timeout in milliseconds (default: 30 sec)
  *     - max_retries:     maximum number of retries (default: 3)
@@ -47,8 +46,8 @@ import { LogMessage } from 'pip-services3-components-node';
  * 
  * ### References ###
  * 
- * - <code>\*:context-info:\*:\*:1.0</code>      (optional) [[https://rawgit.com/pip-services-node/pip-services3-components-node/master/doc/api/classes/info.contextinfo.html ContextInfo]] to detect the context id and specify counters source
- * - <code>\*:discovery:\*:\*:1.0</code>         (optional) [[https://rawgit.com/pip-services-node/pip-services3-components-node/master/doc/api/interfaces/connect.idiscovery.html IDiscovery]] services to resolve connection
+ * - <code>\*:context-info:\*:\*:1.0</code>      (optional) [[https://pip-services3-node.github.io/pip-services3-components-node/classes/info.contextinfo.html ContextInfo]] to detect the context id and specify counters source
+ * - <code>\*:discovery:\*:\*:1.0</code>         (optional) [[https://pip-services3-node.github.io/pip-services3-components-node/interfaces/connect.idiscovery.html IDiscovery]] services to resolve connection
  * 
  * ### Example ###
  * 
