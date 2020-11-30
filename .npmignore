@@ -1,10 +1,10 @@
 /.vscode
-/src
 /test
 /obj/test
-/doc
 /data
+/docs
 /docker
+/node_modules
 /.dockerignore
 /*.sh
 /*.ps1
