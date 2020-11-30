@@ -4,7 +4,7 @@ This module is a part of the [Pip.Services](http://pipservices.org) polyglot mic
 
 The Elasticsearch module contains logging components with data storage on the Elasticsearch server.
 
-This module contains the following packages:
+The module contains the following packages:
 - **Build** - contains a factory for the construction of components
 - **Log** - Logging components
 
