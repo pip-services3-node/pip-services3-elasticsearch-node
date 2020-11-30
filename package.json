@@ -30,6 +30,7 @@
     "scripts": {
         "build": "tsc",
         "watch": "tsc --watch",
+        "delay_test": "sleep 60 && echo Continue... && mocha -t 30000 -R spec -u tdd --recursive ./obj/test",
         "test": "mocha -t 10000 -R spec -u tdd --recursive ./obj/test",
         "retest": "tsc && mocha -t 10000 -R spec -u tdd --recursive ./obj/test"
     },

@@ -11,4 +11,4 @@ RUN npm install
 # copy all project
 COPY . .
  
-CMD [ "npm", "test" ]
+CMD [ "npm", "run", "delay_test" ]
