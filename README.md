@@ -17,9 +17,6 @@ The module contains the following packages:
 * [Get Help](https://www.pipservices.org/community/help)
 * [Contribute](https://www.pipservices.org/community/contribute)
 
-<a name="articles"></a>Articles, where using components from this module:
-*  - configuring ElasticSearch logger.
-
 ## Use
 
 Install the NPM package as
