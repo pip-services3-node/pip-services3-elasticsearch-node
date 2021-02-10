@@ -35,19 +35,19 @@
         "retest": "tsc && mocha -t 10000 -R spec -u tdd --recursive ./obj/test"
     },
     "dependencies": {
-        "elasticsearch": "^14.2.1",
+        "elasticsearch": "^16.7.2",
         "moment": "^2.24.0",
         "pip-services3-commons-node": "^3.0.0",
         "pip-services3-components-node": "^3.0.0",
         "pip-services3-rpc-node": "^3.2.1"
     },
     "devDependencies": {
-        "@types/async": "^2.0.0",
+        "@types/async": "3.2.5",
         "@types/chai": "*",
         "@types/lodash": "^4.0.0",
         "@types/mocha": "*",
         "@types/node": "*",
         "chai": "*",
-        "mocha": "^7.2.0"
+        "mocha": "^8.2.1"
     }
 }

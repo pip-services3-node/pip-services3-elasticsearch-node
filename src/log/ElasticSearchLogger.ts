@@ -34,15 +34,16 @@ import { LogMessage } from 'pip-services3-components-node';
  *     - port:                  port number
  *     - uri:                   resource URI or connection string with all parameters in it
  * - options:
- *     - interval:        interval in milliseconds to save log messages (default: 10 seconds)
- *     - max_cache_size:  maximum number of messages stored in this cache (default: 100)
- *     - index:           ElasticSearch index name (default: "log")
- *     - date_format      The date format to use when creating the index name. Eg. log-YYYYMMDD (default: "YYYYMMDD"). See [[https://momentjs.com/docs/#/displaying/format/ Moment.js]]
- *     - daily:           true to create a new index every day by adding date suffix to the index name (default: false)
- *     - reconnect:       reconnect timeout in milliseconds (default: 60 sec)
- *     - timeout:         invocation timeout in milliseconds (default: 30 sec)
- *     - max_retries:     maximum number of retries (default: 3)
- *     - index_message:   true to enable indexing for message object (default: false)
+ *     - interval:          interval in milliseconds to save log messages (default: 10 seconds)
+ *     - max_cache_size:    maximum number of messages stored in this cache (default: 100)
+ *     - index:             ElasticSearch index name (default: "log")
+ *     - date_format        The date format to use when creating the index name. Eg. log-YYYYMMDD (default: "YYYYMMDD"). See [[https://momentjs.com/docs/#/displaying/format/ Moment.js]]
+ *     - daily:             true to create a new index every day by adding date suffix to the index name (default: false)
+ *     - reconnect:         reconnect timeout in milliseconds (default: 60 sec)
+ *     - timeout:           invocation timeout in milliseconds (default: 30 sec)
+ *     - max_retries:       maximum number of retries (default: 3)
+ *     - index_message:     true to enable indexing for message object (default: false)
+ *     - include_type_name: Will create using a "typed" index compatible with ElasticSearch 6.x (default: false)
  * 
  * ### References ###
  * 
@@ -77,7 +78,7 @@ export class ElasticSearchLogger extends CachedLogger implements IReferenceable,
     private _timeout: number = 30000;
     private _maxRetries: number = 3;
     private _indexMessage: boolean = false;
-
+    private _include_type_name: boolean = false;
     private _client: any = null;
 
     /**
@@ -98,18 +99,20 @@ export class ElasticSearchLogger extends CachedLogger implements IReferenceable,
         this._connectionResolver.configure(config);
 
         this._index = config.getAsStringWithDefault('index', this._index);
-        this._dateFormat = config.getAsStringWithDefault ("date_format", this._dateFormat);
+        this._dateFormat = config.getAsStringWithDefault("date_format", this._dateFormat);
         this._dailyIndex = config.getAsBooleanWithDefault('daily', this._dailyIndex);
         this._reconnect = config.getAsIntegerWithDefault('options.reconnect', this._reconnect);
         this._timeout = config.getAsIntegerWithDefault('options.timeout', this._timeout);
         this._maxRetries = config.getAsIntegerWithDefault('options.max_retries', this._maxRetries);
         this._indexMessage = config.getAsBooleanWithDefault('options.index_message', this._indexMessage);
+        this._include_type_name = config.getAsBooleanWithDefault('options.include_type_name', this._include_type_name);
     }
 
+
     /**
-	 * Sets references to dependent components.
-	 * 
-	 * @param references 	references to locate the component dependencies. 
+     * Sets references to dependent components.
+     * 
+     * @param references 	references to locate the component dependencies. 
      */
     public setReferences(references: IReferences): void {
         super.setReferences(references);
@@ -117,18 +120,18 @@ export class ElasticSearchLogger extends CachedLogger implements IReferenceable,
     }
 
     /**
-	 * Checks if the component is opened.
-	 * 
-	 * @returns true if the component has been opened and false otherwise.
+     * Checks if the component is opened.
+     * 
+     * @returns true if the component has been opened and false otherwise.
      */
     public isOpen(): boolean {
         return this._timer != null;
     }
 
     /**
-	 * Opens the component.
-	 * 
-	 * @param correlationId 	(optional) transaction id to trace execution through call chain.
+     * Opens the component.
+     * 
+     * @param correlationId 	(optional) transaction id to trace execution through call chain.
      * @param callback 			callback function that receives error or null no errors occured.
      */
     public open(correlationId: string, callback: (err: any) => void): void {
@@ -169,9 +172,9 @@ export class ElasticSearchLogger extends CachedLogger implements IReferenceable,
     }
 
     /**
-	 * Closes component and frees used resources.
-	 * 
-	 * @param correlationId 	(optional) transaction id to trace execution through call chain.
+     * Closes component and frees used resources.
+     * 
+     * @param correlationId 	(optional) transaction id to trace execution through call chain.
      * @param callback 			callback function that receives error or null no errors occured.
      */
     public close(correlationId: string, callback: (err: any) => void): void {
@@ -214,36 +217,13 @@ export class ElasticSearchLogger extends CachedLogger implements IReferenceable,
 
                 this._client.indices.create(
                     {
+                        include_type_name: this._include_type_name,
                         index: this._currentIndex,
                         body: {
                             settings: {
                                 number_of_shards: 1
                             },
-                            mappings: {
-                                log_message: {
-                                    properties: {
-                                        time: { type: "date", index: true },
-                                        source: { type: "keyword", index: true },
-                                        level: { type: "keyword", index: true },
-                                        correlation_id: { type: "text", index: true },
-                                        error: {
-                                            type: "object",
-                                            properties: {
-                                                type: { type: "keyword", index: true },
-                                                category: { type: "keyword", index: true },
-                                                status: { type: "integer", index: false },
-                                                code: { type: "keyword", index: true },
-                                                message: { type: "text", index: false },
-                                                details: { type: "object" },
-                                                correlation_id: { type: "text", index: false },
-                                                cause: { type: "text", index: false },
-                                                stack_trace: { type: "text", index: false }
-                                            }
-                                        },
-                                        message: { type: "text", index: this._indexMessage }
-                                    }
-                                }
-                            }
+                            mappings: this.getIndexSchema()
                         }
                     },
                     (err) => {
@@ -256,6 +236,43 @@ export class ElasticSearchLogger extends CachedLogger implements IReferenceable,
                 );
             }
         );
+    }
+
+    /**
+     * Returns the schema of the log message
+     * @param include_type_name A flag that indicates whether the schema should follow the pre-ES 6.x convention
+     */
+    private getIndexSchema(): any {
+
+        const schema = {
+            properties: {
+                time: { type: "date", index: true },
+                source: { type: "keyword", index: true },
+                level: { type: "keyword", index: true },
+                correlation_id: { type: "text", index: true },
+                error: {
+                    type: "object",
+                    properties: {
+                        type: { type: "keyword", index: true },
+                        category: { type: "keyword", index: true },
+                        status: { type: "integer", index: false },
+                        code: { type: "keyword", index: true },
+                        message: { type: "text", index: false },
+                        details: { type: "object" },
+                        correlation_id: { type: "text", index: false },
+                        cause: { type: "text", index: false },
+                        stack_trace: { type: "text", index: false }
+                    }
+                },
+                message: { type: "text", index: this._indexMessage }
+            }
+        }
+
+        if (this._include_type_name) {
+            return {
+                log_message: schema
+            }
+        } else return schema
     }
 
     /**
@@ -278,11 +295,17 @@ export class ElasticSearchLogger extends CachedLogger implements IReferenceable,
 
             let bulk = [];
             for (let message of messages) {
-                bulk.push({ index: { _index: this._currentIndex, _type: "log_message", _id: IdGenerator.nextLong() } })
+                bulk.push({ index: this.getLogItem()})
                 bulk.push(message);
             }
 
             this._client.bulk({ body: bulk }, callback);
         });
+    }
+
+    protected getLogItem(): any {
+        return this._include_type_name ?
+            { _index: this._currentIndex, _type: "log_message", _id: IdGenerator.nextLong() } : // ElasticSearch 6.x
+            { _index: this._currentIndex, _id: IdGenerator.nextLong() }                         // ElasticSearch 7.x
     }
 }

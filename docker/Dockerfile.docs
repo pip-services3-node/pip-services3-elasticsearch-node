@@ -1,4 +1,4 @@
-FROM node:8.4.0-alpine
+FROM node:14-alpine
 
 # Configure npm
 RUN npm set progress=false && npm config set depth 0
