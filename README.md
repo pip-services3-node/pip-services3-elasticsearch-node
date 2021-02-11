@@ -110,6 +110,10 @@ Configure the vm.max_map_count
     fixes:
     max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
 
+## Typed vs Type-less indexes
+ES version 7 [stopped supporting "types"](https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html) and encouraged a separation of disperate data into different indexes. By default, this version of pip-services3-elasticsearch-node will support 7.x type-less indexes. You can support to the 6.x "typed" approach by setting the `include_type_name` option to true. This allows it to work with either 6.x or 7.x ElasticSearch servers.
+
+You can read more about how this is accomplished  [here](https://www.elastic.co/blog/moving-from-types-to-typeless-apis-in-elasticsearch-7-0)
 
 ## Contacts
 
@@ -118,9 +122,4 @@ The library is created and maintained by **Sergey Seroukhov**.
 The documentation is written by:
 - **Mark Makarychev**
 
-## Release history
-### 3.1.0 - Support ElasticSearch 7.x.
 
-ES version 7 [stopped supporting "types"](https://www.elastic.co/guide/en/elasticsearch/reference/current/removal-of-types.html) and encouraged a separation of disperate data into different indexes. By default, this version will support 7.x type-less indexes. You can move to the 6.x "typed" approach by setting INCLUDE_TYPE_NAME to True. This will work with either 6.x or 7.x ElasticSearch servers.
-
-This is accomplished using the existing technique provided by ES shown [here](https://www.elastic.co/blog/moving-from-types-to-typeless-apis-in-elasticsearch-7-0)
